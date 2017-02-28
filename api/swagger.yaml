@@ -1,0 +1,200 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Task List API"
+paths:
+  /tasks:
+    get:
+      description: "Returns all tasks grouped by category and sorted by due date.\n"
+      operationId: "tasksGET"
+      parameters:
+      - name: "dueDate"
+        in: "query"
+        description: "The minimum due date of the tasks to return"
+        required: false
+        type: "string"
+        format: "date"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            title: "ArrayOfTasks"
+            items:
+              $ref: "#/definitions/Task"
+      x-swagger-router-controller: "Default"
+    post:
+      description: "Adds a new task"
+      operationId: "tasksPOST"
+      parameters:
+      - in: "body"
+        name: "task"
+        description: "The task to create"
+        required: true
+        schema:
+          $ref: "#/definitions/Task"
+      responses:
+        201:
+          description: "Successful response"
+          headers:
+            location:
+              type: "string"
+              description: "The URI of the newly created task"
+        400:
+          description: "Invalid format"
+      x-swagger-router-controller: "Default"
+  /tasks/{id}:
+    get:
+      description: "Gets a task"
+      operationId: "tasksIdGET"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Task ID"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/Task"
+        404:
+          description: "Task not found"
+      x-swagger-router-controller: "Default"
+    put:
+      description: "Updates a task"
+      operationId: "tasksIdPUT"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Task ID"
+        required: true
+        type: "string"
+        format: "guid"
+      - in: "body"
+        name: "task"
+        description: "The updated task"
+        required: true
+        schema:
+          $ref: "#/definitions/Task"
+      responses:
+        204:
+          description: "Successful response"
+        400:
+          description: "Invalid format"
+        404:
+          description: "Task not found"
+      x-swagger-router-controller: "Default"
+    delete:
+      description: "Deletes a task"
+      operationId: "tasksIdDELETE"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Task ID"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        204:
+          description: "Successful response"
+        404:
+          description: "Task not found"
+      x-swagger-router-controller: "Default"
+  /tasks/{id}/complete:
+    post:
+      description: "Completes a task"
+      operationId: "tasksIdCompletePOST"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Task ID"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        204:
+          description: "Successful response"
+        404:
+          description: "Task not found"
+      x-swagger-router-controller: "Default"
+    delete:
+      description: "Uncompletes a task, restoring its previous due date"
+      operationId: "tasksIdCompleteDELETE"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Task ID"
+        required: true
+        type: "string"
+        format: "guid"
+      responses:
+        204:
+          description: "Successful response"
+        304:
+          description: "No change - the task was not complete"
+        404:
+          description: "Task not found"
+      x-swagger-router-controller: "Default"
+  /tasks/categories:
+    get:
+      description: "Gets the list of task category names currently in use"
+      operationId: "tasksCategoriesGET"
+      parameters: []
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            title: "ArrayOfStrings"
+            items:
+              type: "string"
+      x-swagger-router-controller: "Default"
+  /tasks/cleanup:
+    post:
+      description: "Removes completed tasks that are not configured to repeat"
+      operationId: "tasksCleanupPOST"
+      parameters: []
+      responses:
+        204:
+          description: "Successful response"
+      x-swagger-router-controller: "Default"
+definitions:
+  Task:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "guid"
+        description: "Task ID"
+      name:
+        type: "string"
+        description: "Task name"
+      category:
+        type: "string"
+        description: "Task category name"
+      dueDate:
+        type: "string"
+        format: "date"
+        description: "Task due date"
+      lastDueDate:
+        type: "string"
+        format: "date"
+        description: "The previous due date of the task, or null"
+      repeat:
+        $ref: "#/definitions/RepetitionOptions"
+  RepetitionOptions:
+    type: "object"
+    properties:
+      unit:
+        type: "string"
+        description: "The unit of measurement"
+        enum:
+        - "days"
+        - "weeks"
+        - "m"
+      rate:
+        type: "integer"
+        description: "The rate at which a task repeats"
