@@ -20,9 +20,9 @@ paths:
           description: "Successful response"
           schema:
             type: "array"
-            title: "ArrayOfTasks"
+            title: "ArrayOfTaskCategories"
             items:
-              $ref: "#/definitions/Task"
+              $ref: "#/definitions/TaskCategory"
       x-swagger-router-controller: "Default"
     post:
       description: "Adds a new task"
@@ -160,12 +160,25 @@ paths:
       responses:
         204:
           description: "Successful response"
+        304:
+          description: "No tasks were deleted"
       x-swagger-router-controller: "Default"
 definitions:
+  TaskCategory:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+        description: "Category name"
+      tasks:
+        type: "array"
+        title: "ArrayOfTasks"
+        items:
+          $ref: "#/definitions/Task"
   Task:
     type: "object"
     properties:
-      id:
+      _id:
         type: "string"
         format: "guid"
         description: "Task ID"

@@ -6,6 +6,18 @@ var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
 var serverPort = 8080;
+var mongo = require('mongodb').MongoClient
+var db
+
+// Open MongoDB connection
+mongo.connect('mongodb://localhost:27017/tasklist', function (err, database) {
+  if (err) return console.log(err)
+  db = database
+})
+
+module.exports.getDb = function() {
+  return db;
+};
 
 // swaggerRouter configuration
 var options = {
