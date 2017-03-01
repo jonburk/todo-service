@@ -29,7 +29,19 @@ exports.tasksCleanupPOST = function(args, res, next) {
    *
    * no response value expected for this operation
    **/
-  res.end();
+  dbHost.getDb().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
+    if (err) {
+      res.statusCode = 500;
+      res.end(JSON.stringify(err));
+      return;
+    } else if (result.deletedCount > 0) {
+      res.statusCode = 204;
+    } else {
+      res.statusCode = 304;
+    }
+
+    res.end();
+  });
 }
 
 exports.tasksGET = function(args, res, next) {
@@ -236,6 +248,6 @@ exports.tasksPOST = function(args, res, next) {
     res.setHeader('location', '/api/tasks/' + result.insertedIds[0]);
     res.statusCode = 201;
     res.end();
-  })  
+  })
 }
 
