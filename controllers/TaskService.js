@@ -28,12 +28,7 @@ exports.tasksCleanupPOST = function(args, res, next) {
   dbHost.getDb().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
     if (hasError(err, res)) return;
 
-    if (result.deletedCount > 0) {
-      res.statusCode = 204;
-    } else {
-      res.statusCode = 304;
-    }
-
+    res.statusCode = result.deletedCount === 0 ? 304: 204;
     res.end();
   });
 }
@@ -89,12 +84,7 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
     dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
       if (hasError(err, res)) return;
 
-      if (result.modifiedCount === 0) {
-        res.statusCode = 404;
-      } else {
-        res.statusCode = 204;
-      }
-
+      res.statusCode = result.modifiedCount === 0 ? 404: 204;
       res.end();
     });
   });
@@ -129,12 +119,7 @@ exports.tasksIdCompletePOST = function(args, res, next) {
     dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
       if (hasError(err, res)) return;
 
-      if (result.modifiedCount === 0) {
-        res.statusCode = 404;
-      } else {
-        res.statusCode = 204;
-      }
-
+      res.statusCode = result.modifiedCount === 0 ? 404: 204;
       res.end();
     });
   });
@@ -150,12 +135,7 @@ exports.tasksIdDELETE = function(args, res, next) {
   dbHost.getDb().collection('tasks').deleteOne({ _id: ObjectId(args.id.value) }, function(err, result) {
     if (hasError(err, res)) return;
 
-    if (result.deletedCount === 0) {
-      res.statusCode = 404;
-    } else {
-      res.statusCode = 204;
-    }
-    
+    res.statusCode = result.deletedCount === 0 ? 404: 204;    
     res.end();
   });
 }
@@ -193,12 +173,7 @@ exports.tasksIdPUT = function(args, res, next) {
   dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function(err, result) {
     if (hasError(err, res)) return;
 
-    if (result.modifiedCount === 0) {
-      res.statusCode = 404;
-    } else {
-      res.statusCode = 204;
-    }
-
+    res.statusCode = result.modifiedCount === 0 ? 404: 204;
     res.end();
   });
 }
