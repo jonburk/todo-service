@@ -233,7 +233,7 @@ exports.tasksPOST = function(args, res, next) {
       return;
     }
 
-    res.setHeader('location', '/tasks/' + result.insertedIds[0]);
+    res.setHeader('location', '/api/tasks/' + result.insertedIds[0]);
     res.statusCode = 201;
     res.end();
   })  

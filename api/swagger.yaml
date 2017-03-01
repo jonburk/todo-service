@@ -3,6 +3,7 @@ swagger: "2.0"
 info:
   version: "1.0.0"
   title: "Task List API"
+basePath: "/api"
 paths:
   /tasks:
     get:
