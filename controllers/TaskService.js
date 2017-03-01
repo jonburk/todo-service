@@ -12,11 +12,7 @@ exports.tasksCategoriesGET = function(args, res, next) {
    * returns List
    **/
   dbHost.getDb().collection('tasks').distinct('category', function (err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    }    
+    if (hasError(err, res)) return;  
     
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(result || {}, null, 2));
@@ -30,11 +26,9 @@ exports.tasksCleanupPOST = function(args, res, next) {
    * no response value expected for this operation
    **/
   dbHost.getDb().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    } else if (result.deletedCount > 0) {
+    if (hasError(err, res)) return;
+
+    if (result.deletedCount > 0) {
       res.statusCode = 204;
     } else {
       res.statusCode = 304;
@@ -64,11 +58,7 @@ exports.tasksGET = function(args, res, next) {
    ]
 
   dbHost.getDb().collection('tasks').aggregate(pipeline).toArray(function (err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    }    
+    if (hasError(err, res)) return;   
     
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(result || {}, null, 2));
@@ -83,11 +73,7 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
    * no response value expected for this operation
    **/
   dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;       
-    }
+    if (hasError(err, res)) return;
     
     delete result._id;
 
@@ -101,11 +87,9 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
     }
 
     dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
-      if (err) {
-        res.statusCode = 500;
-        res.end(JSON.stringify(err));
-        return;      
-      } else if (result.modifiedCount === 0) {
+      if (hasError(err, res)) return;
+
+      if (result.modifiedCount === 0) {
         res.statusCode = 404;
       } else {
         res.statusCode = 204;
@@ -124,11 +108,7 @@ exports.tasksIdCompletePOST = function(args, res, next) {
    * no response value expected for this operation
    **/
   dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;       
-    }
+    if (hasError(err, res)) return;
     
     delete result._id;
 
@@ -147,11 +127,9 @@ exports.tasksIdCompletePOST = function(args, res, next) {
     }
 
     dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
-      if (err) {
-        res.statusCode = 500;
-        res.end(JSON.stringify(err));
-        return;      
-      } else if (result.modifiedCount === 0) {
+      if (hasError(err, res)) return;
+
+      if (result.modifiedCount === 0) {
         res.statusCode = 404;
       } else {
         res.statusCode = 204;
@@ -170,11 +148,9 @@ exports.tasksIdDELETE = function(args, res, next) {
    * no response value expected for this operation
    **/
   dbHost.getDb().collection('tasks').deleteOne({ _id: ObjectId(args.id.value) }, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    } else if (result.deletedCount === 0) {
+    if (hasError(err, res)) return;
+
+    if (result.deletedCount === 0) {
       res.statusCode = 404;
     } else {
       res.statusCode = 204;
@@ -192,11 +168,9 @@ exports.tasksIdGET = function(args, res, next) {
    * returns Task
    **/
   dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    } else if (_.isEmpty(result)) {
+    if (hasError(err, res)) return;
+
+    if (_.isEmpty(result)) {
       res.statusCode = 404;
       res.end();
     } else {
@@ -217,11 +191,9 @@ exports.tasksIdPUT = function(args, res, next) {
   delete args.task.value._id;
 
   dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    } else if (result.modifiedCount === 0) {
+    if (hasError(err, res)) return;
+
+    if (result.modifiedCount === 0) {
       res.statusCode = 404;
     } else {
       res.statusCode = 204;
@@ -239,15 +211,21 @@ exports.tasksPOST = function(args, res, next) {
    * no response value expected for this operation
    **/
   dbHost.getDb().collection('tasks').insert(args.task.value, function(err, result) {
-    if (err) {
-      res.statusCode = 500;
-      res.end(JSON.stringify(err));
-      return;
-    }
+    if (hasError(err, res)) return;
 
     res.setHeader('location', '/api/tasks/' + result.insertedIds[0]);
     res.statusCode = 201;
     res.end();
   })
+}
+
+function hasError(err, res) {
+  if (err) {
+    res.statusCode = 500;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(err, nul, 2));
+  }
+
+  return err;
 }
 
