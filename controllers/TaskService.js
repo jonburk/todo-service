@@ -1,6 +1,6 @@
 'use strict';
 
-var dbHost = require('../index');
+var db = require('../db');
 var _ = require('lodash');
 var ObjectId = require('mongodb').ObjectID;
 var moment = require('moment');
@@ -11,7 +11,7 @@ exports.tasksCategoriesGET = function(args, res, next) {
    *
    * returns List
    **/
-  dbHost.getDb().collection('tasks').distinct('category', function (err, result) {
+  db.get().collection('tasks').distinct('category', function (err, result) {
     if (hasError(err, res)) return;  
     
     res.setHeader('Content-Type', 'application/json');
@@ -25,7 +25,7 @@ exports.tasksCleanupPOST = function(args, res, next) {
    *
    * no response value expected for this operation
    **/
-  dbHost.getDb().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
+  db.get().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
     if (hasError(err, res)) return;
 
     res.statusCode = result.deletedCount === 0 ? 304: 204;
@@ -52,7 +52,7 @@ exports.tasksGET = function(args, res, next) {
      }
    ]
 
-  dbHost.getDb().collection('tasks').aggregate(pipeline).toArray(function (err, result) {
+  db.get().collection('tasks').aggregate(pipeline).toArray(function (err, result) {
     if (hasError(err, res)) return;   
     
     res.setHeader('Content-Type', 'application/json');
@@ -67,7 +67,7 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
    * id String Task ID
    * no response value expected for this operation
    **/
-  dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
+  db.get().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
     if (hasError(err, res)) return;
     
     delete result._id;
@@ -81,7 +81,7 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
       return;
     }
 
-    dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
+    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
       if (hasError(err, res)) return;
 
       res.statusCode = result.modifiedCount === 0 ? 404: 204;
@@ -97,7 +97,7 @@ exports.tasksIdCompletePOST = function(args, res, next) {
    * id String Task ID
    * no response value expected for this operation
    **/
-  dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
+  db.get().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
     if (hasError(err, res)) return;
     
     delete result._id;
@@ -116,7 +116,7 @@ exports.tasksIdCompletePOST = function(args, res, next) {
       result.dueDate = null;
     }
 
-    dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
+    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function(err, result) {
       if (hasError(err, res)) return;
 
       res.statusCode = result.modifiedCount === 0 ? 404: 204;
@@ -132,7 +132,7 @@ exports.tasksIdDELETE = function(args, res, next) {
    * id String Task ID
    * no response value expected for this operation
    **/
-  dbHost.getDb().collection('tasks').deleteOne({ _id: ObjectId(args.id.value) }, function(err, result) {
+  db.get().collection('tasks').deleteOne({ _id: ObjectId(args.id.value) }, function(err, result) {
     if (hasError(err, res)) return;
 
     res.statusCode = result.deletedCount === 0 ? 404: 204;    
@@ -147,7 +147,7 @@ exports.tasksIdGET = function(args, res, next) {
    * id String Task ID
    * returns Task
    **/
-  dbHost.getDb().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
+  db.get().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function(err, result) {
     if (hasError(err, res)) return;
 
     if (_.isEmpty(result)) {
@@ -170,7 +170,7 @@ exports.tasksIdPUT = function(args, res, next) {
    **/
   delete args.task.value._id;
 
-  dbHost.getDb().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function(err, result) {
+  db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function(err, result) {
     if (hasError(err, res)) return;
 
     res.statusCode = result.modifiedCount === 0 ? 404: 204;
@@ -185,7 +185,7 @@ exports.tasksPOST = function(args, res, next) {
    * task Task The task to create
    * no response value expected for this operation
    **/
-  dbHost.getDb().collection('tasks').insert(args.task.value, function(err, result) {
+  db.get().collection('tasks').insert(args.task.value, function(err, result) {
     if (hasError(err, res)) return;
 
     res.setHeader('location', '/api/tasks/' + result.insertedIds[0]);
