@@ -197,6 +197,9 @@ definitions:
         type: "string"
         format: "date"
         description: "The previous due date of the task, or null"
+      complete:
+        type: "boolean"
+        description: "This task has been completed and is not scheduled to repeat"
       repeat:
         $ref: "#/definitions/RepetitionOptions"
   RepetitionOptions:

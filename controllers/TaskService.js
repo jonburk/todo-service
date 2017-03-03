@@ -25,7 +25,7 @@ exports.tasksCleanupPOST = function(args, res, next) {
    *
    * no response value expected for this operation
    **/
-  db.get().collection('tasks').deleteMany({ dueDate: null }, null, function (err, result) {
+  db.get().collection('tasks').deleteMany({ complete: true }, null, function (err, result) {
     if (hasError(err, res)) return;
 
     res.statusCode = result.deletedCount === 0 ? 304: 204;
@@ -41,6 +41,11 @@ exports.tasksGET = function(args, res, next) {
    * returns List
    **/  
    var pipeline = [
+     {
+       $match: {
+         complete: {$ne: true}
+       }
+     },
      {
        $sort: { dueDate: 1 }
      },     
@@ -72,7 +77,10 @@ exports.tasksIdCompleteDELETE = function(args, res, next) {
     
     delete result._id;
 
-    if (result.lastDueDate) {
+    if (result.complete) {
+      result.complete = false;
+    }
+    else if (result.lastDueDate) {
       result.dueDate = result.lastDueDate;
       result.lastDueDate = null;
     } else {
@@ -104,6 +112,8 @@ exports.tasksIdCompletePOST = function(args, res, next) {
 
     if (result.dueDate) {
       result.lastDueDate = result.dueDate;
+    } else {
+      result.complete = true;
     }
 
     if (!_.isEmpty(result.repeat)) {
