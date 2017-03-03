@@ -211,7 +211,7 @@ definitions:
         enum:
         - "days"
         - "weeks"
-        - "m"
+        - "months"
       rate:
         type: "integer"
         description: "The rate at which a task repeats"
