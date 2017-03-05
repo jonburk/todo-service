@@ -5,6 +5,11 @@ var _ = require('lodash');
 var ObjectId = require('mongodb').ObjectID;
 var moment = require('moment');
 
+const DATE_PROPERTIES = ['dueDate', 'lastDueDate'].reduce((result, field) => {
+  result[field] = {format: 'date'};
+  return result;
+}, {});
+
 exports.tasksCategoriesGET = function(args, res, next) {
   /**
    * Gets the list of task category names currently in use
@@ -57,9 +62,15 @@ exports.tasksGET = function(args, res, next) {
      }
    ]
 
+  if (args.dueDate.value) {
+    pipeline[0].$match = {$or: [{dueDate: {$lte: moment.utc(args.dueDate.value).toDate()}, complete: {$ne: true}}, {dueDate: null, complete: {$ne: true}}]}
+  }
+
   db.get().collection('tasks').aggregate(pipeline).toArray(function (err, result) {
     if (hasError(err, res)) return;   
-    
+
+    result.forEach(category => category.tasks.forEach(task => convertDates(task, DATE_PROPERTIES, true)));
+
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify(result || {}, null, 2));
   })
@@ -112,17 +123,16 @@ exports.tasksIdCompletePOST = function(args, res, next) {
 
     if (result.dueDate) {
       result.lastDueDate = result.dueDate;
-    } else {
-      result.complete = true;
     }
 
     if (!_.isEmpty(result.repeat)) {
-      var now = moment();
+      var now = moment().utc();
 
       do {
-        result.dueDate = moment(result.dueDate).add(result.repeat.rate, result.repeat.unit).format('YYYY-MM-DD');
+        result.dueDate = moment(result.dueDate).add(result.repeat.rate, result.repeat.unit).toDate();
       } while (now.isSameOrAfter(result.dueDate));
     } else {
+      result.complete = true;
       result.dueDate = null;
     }
 
@@ -164,6 +174,7 @@ exports.tasksIdGET = function(args, res, next) {
       res.statusCode = 404;
       res.end();
     } else {
+      convertDates(result, DATE_PROPERTIES, true);      
       res.setHeader('Content-Type', 'application/json');
       res.end(JSON.stringify(result || {}, null, 2));    
     }
@@ -179,6 +190,7 @@ exports.tasksIdPUT = function(args, res, next) {
    * no response value expected for this operation
    **/
   delete args.task.value._id;
+  convertDates(args.task.value, args.task.schema.schema.properties, false);
 
   db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function(err, result) {
     if (hasError(err, res)) return;
@@ -195,6 +207,9 @@ exports.tasksPOST = function(args, res, next) {
    * task Task The task to create
    * no response value expected for this operation
    **/
+
+  convertDates(args.task.value, args.task.schema.schema.properties, false);
+
   db.get().collection('tasks').insert(args.task.value, function(err, result) {
     if (hasError(err, res)) return;
 
@@ -214,3 +229,18 @@ function hasError(err, res) {
   return err;
 }
 
+function convertDates(target, properties, toString) {
+  Object.keys(properties)
+    .filter(key => properties[key].format === 'date')
+    .forEach(field => convertDate(target, field, toString));
+}
+
+function convertDate(target, field, toString) {
+  if (target[field]) {    
+    if (toString) {
+      target[field] = moment(target[field]).format('YYYY-MM-DD');
+    } else {
+      target[field] = moment.utc(target[field], 'YYYY-MM-DD').toDate();
+    }
+  }
+}
