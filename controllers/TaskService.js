@@ -63,7 +63,7 @@ exports.tasksGET = function(args, res, next) {
    ]
 
   if (args.dueDate.value) {
-    pipeline[0].$match = {$or: [{dueDate: {$lte: moment.utc(args.dueDate.value).toDate()}, complete: {$ne: true}}, {dueDate: null, complete: {$ne: true}}]}
+    pipeline[0].$match = {$or: [{dueDate: {$lt: moment(args.dueDate.value).add(1, 'day').toDate()}, complete: {$ne: true}}, {dueDate: null, complete: {$ne: true}}]}
   }
 
   db.get().collection('tasks').aggregate(pipeline).toArray(function (err, result) {
@@ -240,7 +240,7 @@ function convertDate(target, field, toString) {
     if (toString) {
       target[field] = moment(target[field]).format('YYYY-MM-DD');
     } else {
-      target[field] = moment.utc(target[field], 'YYYY-MM-DD').toDate();
+      target[field] = moment(target[field], 'YYYY-MM-DD').toDate();
     }
   }
 }
