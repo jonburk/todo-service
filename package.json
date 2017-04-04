@@ -11,6 +11,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "compression": "^1.6.2",
     "connect": "^3.2.0",
     "cors": "^2.8.1",
     "js-yaml": "^3.3.0",

@@ -3,6 +3,7 @@
 var app = require('connect')();
 var serveStatic = require('serve-static');
 var http = require('http');
+var compression = require('compression');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
@@ -31,8 +32,11 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 // Add cors
 app.use(cors());
 
+// Compression
+app.use(compression());
+
 // Static readFileSync
-app.use(serveStatic('../ui/static', {'index': ['index.html']}))
+app.use(serveStatic('../ui/static', {'index': ['index.html']}));
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
