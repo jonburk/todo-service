@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('connect')();
+var serveStatic = require('serve-static');
 var http = require('http');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
@@ -29,6 +30,9 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 
 // Add cors
 app.use(cors());
+
+// Static readFileSync
+app.use(serveStatic('../ui/static', {'index': ['index.html']}))
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
