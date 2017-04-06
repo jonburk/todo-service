@@ -15,10 +15,13 @@
     "config": "^1.25.1",
     "cors": "^2.8.1",
     "express": "^4.15.2",
+    "express-session": "^1.15.2",
     "js-yaml": "^3.3.0",
     "lodash": "^4.17.4",
     "moment": "^2.17.1",
     "mongodb": "^2.2.24",
+    "passport": "^0.3.2",
+    "passport-google-oauth20": "^1.0.0",
     "serve-static": "^1.12.1",
     "swagger-tools": "0.10.1"
   }

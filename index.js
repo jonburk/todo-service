@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('express')();
+var passport = require('passport');
 var config = require('config');
 var serveStatic = require('serve-static');
 var http = require('http');
@@ -9,6 +10,7 @@ var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
 var fs = require('fs');
 var cors = require('cors');
+var session = require('express-session');
 var db = require('./db');
 var serverPort = config.get('App.server.port');
 
@@ -33,6 +35,27 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 if (process.env.NODE_ENV === 'development') {
   // Add cors
   app.use(cors());
+}
+
+if (process.env.NODE_ENV === 'production') {
+  // Session
+  var sessionConfig = {
+    resave: false,
+    saveUninitialized: false,
+    secret: config.get('App.server.session.secret'),
+    signed: true
+  }
+
+  app.use(session(sessionConfig));
+
+  // Enable OAuth2
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  var oauth = require('./oauth2');
+
+  app.use(oauth.router);
+  app.use(oauth.required);
 }
 
 // Compression
