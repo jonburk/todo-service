@@ -29,8 +29,10 @@ var options = {
 var spec = fs.readFileSync('./api/swagger.yaml', 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
-// Add cors
-app.use(cors());
+if (process.env.NODE_ENV === 'development') {
+  // Add cors
+  app.use(cors());
+}
 
 // Compression
 app.use(compression());
