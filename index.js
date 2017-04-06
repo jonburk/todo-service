@@ -1,6 +1,7 @@
 'use strict';
 
 var app = require('connect')();
+var config = require('config');
 var serveStatic = require('serve-static');
 var http = require('http');
 var compression = require('compression');
@@ -9,7 +10,7 @@ var jsyaml = require('js-yaml');
 var fs = require('fs');
 var cors = require('cors');
 var db = require('./db');
-var serverPort = 8080;
+var serverPort = config.get('App.server.port');
 
 // Open MongoDB connection
 db.connect();
