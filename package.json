@@ -12,6 +12,7 @@
   "private": true,
   "dependencies": {
     "compression": "^1.6.2",
+    "config": "^1.25.1",
     "connect": "^3.2.0",
     "cors": "^2.8.1",
     "js-yaml": "^3.3.0",
