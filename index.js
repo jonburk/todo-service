@@ -1,6 +1,6 @@
 'use strict';
 
-var app = require('connect')();
+var app = require('express')();
 var config = require('config');
 var serveStatic = require('serve-static');
 var http = require('http');
