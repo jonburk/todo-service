@@ -11,6 +11,7 @@ var jsyaml = require('js-yaml');
 var fs = require('fs');
 var cors = require('cors');
 var session = require('express-session');
+var MongoDBStore = require('connect-mongodb-session')(session);
 var db = require('./db');
 var serverPort = config.get('App.server.port');
 
@@ -38,12 +39,18 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 if (process.env.NODE_ENV === 'production') {
+  var store = new MongoDBStore({
+    uri: `mongodb://${config.get('App.db.host')}:${config.get('App.db.port')}/${config.get('App.db.name')}`,
+    collection: config.get('App.server.session.collection')
+  });
+
   // Session
   var sessionConfig = {
     resave: false,
     saveUninitialized: false,
     secret: config.get('App.server.session.secret'),
-    signed: true
+    signed: true,
+    store: store
   }
 
   app.use(session(sessionConfig));
