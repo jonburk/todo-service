@@ -1,9 +1,7 @@
 {
   "App": {
     "db": {
-      "host": "localhost",
-      "port": "27017",
-      "name": "tasklist"
+      "connectionString": "mongodb://localhost:27017/tasklist"
     },
     "server": {
       "port": 8080

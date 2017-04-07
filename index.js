@@ -40,7 +40,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'production') {
   var store = new MongoDBStore({
-    uri: db.getConnectionString(),
+    uri: config.get('App.db.connectionString'),
     collection: config.get('App.server.session.collection')
   });
 
