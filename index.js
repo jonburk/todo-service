@@ -4,7 +4,6 @@ var app = require('express')();
 var passport = require('passport');
 var config = require('config');
 var serveStatic = require('serve-static');
-var http = require('http');
 var compression = require('compression');
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
@@ -13,7 +12,7 @@ var cors = require('cors');
 var session = require('express-session');
 var MongoDBStore = require('connect-mongodb-session')(session);
 var db = require('./db');
-var serverPort = config.get('App.server.port');
+var serverPort = process.env.PORT || config.get('App.server.port');
 
 // Open MongoDB connection
 db.connect();
@@ -69,7 +68,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use(compression());
 
 // Static readFileSync
-app.use(serveStatic('../ui/static', {'index': ['index.html']}));
+app.use(serveStatic('./static', {'index': ['index.html']}));
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
@@ -88,8 +87,7 @@ swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   }
 
   // Start the server
-  http.createServer(app).listen(serverPort, function () {
-    //console.log('Your server is listening on port %d (http://localhost:%d)', serverPort, serverPort);
-    //console.log('Swagger-ui is available on http://localhost:%d/docs', serverPort);
-  });
+  app.listen(serverPort, function() {
+    console.log(`App listening on port ${serverPort}`);
+  })
 });

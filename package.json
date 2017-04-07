@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Task list REST services",
   "main": "index.js",
+  "repository": "https://github.com/jonburk/todo-service",
   "scripts": {
     "prestart": "npm install",
     "start": "node index.js"
@@ -25,5 +26,8 @@
     "passport-google-oauth20": "^1.0.0",
     "serve-static": "^1.12.1",
     "swagger-tools": "0.10.1"
+  },
+  "engines": {
+    "node": ">=4.3.2"
   }
 }
