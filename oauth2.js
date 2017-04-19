@@ -1,17 +1,17 @@
 'use strict'
 
-var express = require('express');
-var passport = require('passport');
-var GoogleStrategy = require('passport-google-oauth20').Strategy;
-var config = require('config');
-var db = require('./db');
-var _ = require('lodash');
+var express = require('express')
+var passport = require('passport')
+var GoogleStrategy = require('passport-google-oauth20').Strategy
+var config = require('config')
+var db = require('./db')
+var _ = require('lodash')
 
 function extractProfile (profile) {
   return {
     id: profile.id,
-    displayName: profile.displayName,
-  };
+    displayName: profile.displayName
+  }
 }
 
 passport.use(new GoogleStrategy({
@@ -19,45 +19,46 @@ passport.use(new GoogleStrategy({
   clientSecret: config.get('App.security.oauth2.clientSecret'),
   callbackURL: config.get('App.security.oauth2.callback')
 }, (accessToken, refreshToken, profile, cb) => {
+  db.get().collection('users').findOne({ googleId: profile.id }, function (err, result) {
+    var authErr = null
+    var extractedProfile = null
 
-  db.get().collection('users').findOne({ googleId: profile.id }, function(err, result) {
-    var authErr = null;
-    var extractedProfile = null;
-
-    if (_.isEmpty(result)) {
-      authErr = "Unknown user";
+    if (err) {
+      authErr = err
+    } else if (_.isEmpty(result)) {
+      authErr = 'Unknown user'
     } else {
-      extractedProfile = extractProfile(profile);      
+      extractedProfile = extractProfile(profile)
     }
 
-    cb(authErr, extractedProfile);
-  });
-}));
+    cb(authErr, extractedProfile)
+  })
+}))
 
 passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
+  cb(null, user)
+})
 
 passport.deserializeUser((obj, cb) => {
-  cb(null, obj);
-}); 
+  cb(null, obj)
+})
 
-var router = express.Router();
+var router = express.Router()
 
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }))
 
-router.get('/auth/google/callback', passport.authenticate('google'), function(req, res, next) {
-  res.redirect('/');
-});
+router.get('/auth/google/callback', passport.authenticate('google'), function (req, res, next) {
+  res.redirect('/')
+})
 
 function authRequired (req, res, next) {
   if (!req.user) {
-    return res.redirect('/auth/google');
+    return res.redirect('/auth/google')
   }
-  next();
+  next()
 }
 
 module.exports = {
   router: router,
   required: authRequired
-};
+}
