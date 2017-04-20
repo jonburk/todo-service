@@ -20,7 +20,7 @@ exports.tasksCategoriesGET = function (args, res, next) {
     if (hasError(err, res)) return
 
     res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify(result || {}, null, 2))
+    res.end(JSON.stringify(result, null, 2))
   })
 }
 
@@ -72,7 +72,7 @@ exports.tasksGET = function (args, res, next) {
     result.forEach(category => category.tasks.forEach(task => convertDates(task, DATE_PROPERTIES, true)))
 
     res.setHeader('Content-Type', 'application/json')
-    res.end(JSON.stringify(result || {}, null, 2))
+    res.end(JSON.stringify(result, null, 2))
   })
 }
 
@@ -85,6 +85,11 @@ exports.tasksIdCompleteDELETE = function (args, res, next) {
    **/
   db.get().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function (err, result) {
     if (hasError(err, res)) return
+
+    if (_.isEmpty(result)) {
+      res.statusCode = 404
+      return res.end()
+    }
 
     delete result._id
 
@@ -102,7 +107,7 @@ exports.tasksIdCompleteDELETE = function (args, res, next) {
     db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function (err, result) {
       if (hasError(err, res)) return
 
-      res.statusCode = result.modifiedCount === 0 ? 404 : 204
+      res.statusCode = 204
       res.end()
     })
   })
@@ -117,6 +122,11 @@ exports.tasksIdCompletePOST = function (args, res, next) {
    **/
   db.get().collection('tasks').findOne({ _id: ObjectId(args.id.value) }, function (err, result) {
     if (hasError(err, res)) return
+
+    if (_.isEmpty(result)) {
+      res.statusCode = 404
+      return res.end()
+    }
 
     delete result._id
 
@@ -138,7 +148,7 @@ exports.tasksIdCompletePOST = function (args, res, next) {
     db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function (err, result) {
       if (hasError(err, res)) return
 
-      res.statusCode = result.modifiedCount === 0 ? 404 : 204
+      res.statusCode = 204
       res.end()
     })
   })
@@ -175,7 +185,7 @@ exports.tasksIdGET = function (args, res, next) {
     } else {
       convertDates(result, DATE_PROPERTIES, true)
       res.setHeader('Content-Type', 'application/json')
-      res.end(JSON.stringify(result || {}, null, 2))
+      res.end(JSON.stringify(result, null, 2))
     }
   })
 }

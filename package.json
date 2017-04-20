@@ -6,7 +6,9 @@
   "repository": "https://github.com/jonburk/todo-service",
   "scripts": {
     "prestart": "npm install",
-    "start": "node index.js"
+    "start": "node index.js",
+    "start-dev": "cross-env NODE_ENV=development node index.js",
+    "test": "cross-env NODE_ENV=test istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
   },
   "author": "Jonathan Burk",
   "license": "UNLICENSED",
@@ -29,5 +31,12 @@
   },
   "engines": {
     "node": ">=4.3.2"
+  },
+  "devDependencies": {
+    "cross-env": "^4.0.0",
+    "expect": "^1.20.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "supertest": "^3.0.0"
   }
 }
