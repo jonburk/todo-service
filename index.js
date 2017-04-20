@@ -16,8 +16,20 @@ var serverPort = process.env.PORT || config.get('App.server.port')
 
 function createServer (callback) {
   // Open MongoDB connection
-  db.connect(function () {
-  // swaggerRouter configuration
+  db.connect(function (err) {
+    if (err) {
+      if (process.env.NODE_ENV !== 'test') {
+        console.error(err)
+      }
+
+      if (callback) {
+        callback()
+      }
+
+      return
+    }
+
+    // swaggerRouter configuration
     var options = {
       swaggerUi: '/swagger.json',
       controllers: './controllers',
@@ -84,7 +96,10 @@ function createServer (callback) {
 
       // Start the server
       app.listen(serverPort, function () {
-        console.log(`App listening on port ${serverPort}`)
+        if (process.env.NODE_ENV !== 'test') {
+          console.log(`App listening on port ${serverPort}`)
+        }
+
         if (callback) callback(app)
       })
     })
