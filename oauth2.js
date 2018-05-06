@@ -26,6 +26,7 @@ passport.use(new GoogleStrategy({
     if (err) {
       authErr = err
     } else if (_.isEmpty(result)) {
+      db.get().collection('unknownUsers').insert(profile)
       authErr = 'Unknown user'
     } else {
       extractedProfile = extractProfile(profile)
