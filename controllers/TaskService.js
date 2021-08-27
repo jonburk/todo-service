@@ -104,7 +104,7 @@ exports.tasksIdCompleteDELETE = function (args, res, next) {
       return
     }
 
-    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function (err, result) {
+    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, { $set: result }, null, function (err, result) {
       if (hasError(err, res)) return
 
       res.statusCode = 204
@@ -145,7 +145,7 @@ exports.tasksIdCompletePOST = function (args, res, next) {
       result.dueDate = null
     }
 
-    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, result, null, function (err, result) {
+    db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, { $set: result }, null, function (err, result) {
       if (hasError(err, res)) return
 
       res.statusCode = 204
@@ -201,7 +201,7 @@ exports.tasksIdPUT = function (args, res, next) {
   delete args.task.value._id
   convertDates(args.task.value, args.task.schema.schema.properties, false)
 
-  db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, args.task.value, null, function (err, result) {
+  db.get().collection('tasks').updateOne({ _id: ObjectId(args.id.value) }, { $set: args.task.value }, null, function (err, result) {
     if (hasError(err, res)) return
 
     res.statusCode = result.modifiedCount === 0 ? 404 : 204
@@ -219,10 +219,10 @@ exports.tasksPOST = function (args, res, next) {
 
   convertDates(args.task.value, args.task.schema.schema.properties, false)
 
-  db.get().collection('tasks').insert(args.task.value, function (err, result) {
+  db.get().collection('tasks').insertOne(args.task.value, function (err, result) {
     if (hasError(err, res)) return
 
-    res.setHeader('location', '/api/tasks/' + result.insertedIds[0])
+    res.setHeader('location', '/api/tasks/' + result.insertedId)
     res.statusCode = 201
     res.end()
   })

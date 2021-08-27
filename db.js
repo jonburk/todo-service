@@ -4,8 +4,9 @@ var db = null
 
 // Open MongoDB connection
 module.exports.connect = function (callback) {
-  mongo.connect(config.get('App.db.connectionString'), function (err, database) {
-    db = database
+  mongo.connect(config.get('App.db.connectionString'), function (err, client) {
+    db = client ? client.db() : null
+
     callback(err)
   })
 }
