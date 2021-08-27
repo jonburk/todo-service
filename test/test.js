@@ -817,7 +817,7 @@ describe('API Tests', function () {
         findOne: sandbox.stub().callsArgWith(1, 'Error'),
         updateOne: sandbox.stub().callsArgWith(3, 'Error'),
         deleteOne: sandbox.stub().callsArgWith(1, 'Error'),
-        insert: sandbox.stub().callsArgWith(1, 'Error')
+        insertOne: sandbox.stub().callsArgWith(1, 'Error')
       }
 
       sandbox.stub(db.get(), 'collection').withArgs('tasks').returns(collection)
