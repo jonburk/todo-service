@@ -59,7 +59,10 @@ exports.tasksGET = function (args, res, next) {
         _id: '$category',
         tasks: { $push: '$$ROOT' }
       }
-    }
+    },
+    {
+      $sort: { _id: 1 }
+    },    
   ]
 
   if (args.dueDate.value) {
