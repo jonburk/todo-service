@@ -204,9 +204,9 @@ describe('API Tests', function () {
 
     it('should return a list of tasks filtered by due date', function (done) {
       var input = generateTasks(1, 3)
-      input[0].dueDate = moment().add(-1, 'day').toDate()
-      input[1].dueDate = moment().toDate()
-      input[2].dueDate = moment().add(1, 'day').toDate()
+      input[0].dueDate = moment('2020-01-01T00:00:00.000').toDate()
+      input[1].dueDate = moment('2020-01-02T00:00:00.000').toDate()
+      input[2].dueDate = moment('2020-01-03T00:00:00.000').toDate()
 
       var expected = [
         {
@@ -223,7 +223,7 @@ describe('API Tests', function () {
         if (err) return done(err)
 
         request.get('/api/tasks')
-          .query({ dueDate: moment().format('YYYY-MM-DD') })
+          .query({ dueDate: moment('2020-01-02T00:00:00.000').format('YYYY-MM-DD') })
           .end(function (err, res) {
             if (err) return done(err)
 
