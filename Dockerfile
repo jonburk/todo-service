@@ -8,7 +8,5 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 8080
-
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 CMD [ "node", "index.js" ]
