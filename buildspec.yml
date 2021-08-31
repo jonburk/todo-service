@@ -12,6 +12,7 @@ phases:
     commands:
       - echo Entered the pre_build phase...
       - npm install
+      - npm --prefix ../todo-ui install
     finally:
       - echo This always runs even if the login command fails 
   build:
