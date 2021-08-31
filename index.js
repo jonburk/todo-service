@@ -45,6 +45,10 @@ function createServer (callback) {
       app.use(cors())
     }
 
+    app.get('/healthcheck', function (req, res) {
+      res.send('Healthy')
+    })
+
     if (process.env.NODE_ENV === 'production') {
       var store = new MongoDBStore({
         uri: config.get('App.db.connectionString'),
