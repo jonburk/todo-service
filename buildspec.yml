@@ -1,5 +1,10 @@
 version: 0.2
 
+env:
+  parameter-store:
+    TASK_LIST_URI: /CodeBuild/TaskList/Prod/taskListUri
+    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/taskListPort
+
 phases:
   install:
     runtime-versions:
@@ -13,12 +18,14 @@ phases:
       - echo Entered the pre_build phase...
       - npm install
       - npm --prefix ../todo-ui install
+      - node ../todo-ui/writeconfig ../todo-ui/config/prod.json
     finally:
       - echo This always runs even if the login command fails 
   build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
+      - npm --prefix ../todo-ui run build
     finally:
       - echo This always runs even if the install command fails
   post_build:
