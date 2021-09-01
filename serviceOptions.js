@@ -1,47 +1,85 @@
 var config = require('config')
+var AWS = require('aws-sdk')
 
 function createFromConfig(callback) {
+  // Reshape the config settings to match the results from the AWS param store
+  var rawOptions = {
+    mongoConnectionString: config.get('App.db.connectionString'),
+    securityEnabled: config.get('App.security.enabled')
+  }
+
+  if (rawOptions.securityEnabled) {
+    rawOptions.oauthCallbackUri = config.get('App.security.oauth2.callbackUri')
+    rawOptions.oauthClientId = config.get('App.security.oauth2.clientId')
+    rawOptions.oauthClientSecret = config.get('App.security.oauth2.clientSecret')
+    rawOptions.sessionSecret = config.get('App.security.session.secret')
+  }
+
+  formatOptions(rawOptions, callback)
+}
+
+function createFromAwsParameterStore(path, securityEnabled, callback) {
+  var ssm = new AWS.SSM()
+
+  var params = {
+    Path: path,
+    WithDecryption: true
+  }
+
+  ssm.getParametersByPath(params, function (err, data) {
+    if (err) callback({})
+
+    var rawOptions = {
+      securityEnabled: securityEnabled
+    }
+
+    data.Parameters.forEach(function (param) {
+      // Get the last part of the path (/TaskList/Prod/foo => foo)
+      rawOptions[param.Name.match(/([^\/]*)\/*$/)[1]] = param.Value
+    })
+
+    formatOptions(rawOptions, callback)
+  })
+}
+
+function formatOptions(rawOptions, callback) {  
   var options = {
     db: {
-      connectionString: config.get('App.db.connectionString')
+      connectionString: rawOptions.mongoConnectionString
     },
     security: {
-      enabled: config.get('App.security.enabled')
+      enabled: rawOptions.securityEnabled
     }
   }
 
   if (options.security.enabled) {
     options.security.oauth2 = {
-      clientId: config.get('App.security.oauth2.clientId'),
-      clientSecret: config.get('App.security.oauth2.clientSecret'),
-      callbackUri: config.get('App.security.oauth2.callbackUri')
+      clientId: rawOptions.oauthClientId,
+      clientSecret: rawOptions.oauthClientSecret,
+      callbackUri: rawOptions.oauthCallbackUri
     }
 
     options.security.session = {
-      secret: config.get('App.security.session.secret')
+      secret: rawOptions.sessionSecret
     }
   }
 
   callback(options)
 }
 
-function createFromAwsParameterStore(callback) {
-  callback({})
-}
-
 function create(environment, callback) {
   switch (environment) {
     case 'production':
-      createFromAwsParameterStore(callback)
+      createFromAwsParameterStore('/TaskList/Prod/', true, callback)
       break
     case 'cicd':
-      options = createFromAwsParameterStore(callback)
+      createFromAwsParameterStore('/TaskList/CICD/', false, callback)
       break      
     case 'test':
-      options = createFromConfig(callback)
+      createFromConfig(callback)
       break
     case 'development':
-      options = createFromConfig(callback)
+      createFromConfig(callback)
       break
     default:
       callback({})
