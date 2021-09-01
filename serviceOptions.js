@@ -19,6 +19,7 @@ function createFromConfig(callback) {
 }
 
 function createFromAwsParameterStore(path, securityEnabled, callback) {
+  AWS.config.update({region:'us-east-2'})
   var ssm = new AWS.SSM()
 
   var params = {
