@@ -1,7 +1,7 @@
 var config = require('config')
 var AWS = require('aws-sdk')
 
-function createFromConfig(callback) {
+function createFromConfig(callback) {  
   // Reshape the config settings to match the results from the AWS param store
   var rawOptions = {
     mongoConnectionString: config.get('App.db.connectionString'),
@@ -27,7 +27,11 @@ function createFromAwsParameterStore(path, securityEnabled, callback) {
   }
 
   ssm.getParametersByPath(params, function (err, data) {
-    if (err) callback({})
+    if (err) {
+      console.error('Error reading from parameter store')
+      console.error(err)
+      callback({})
+    }
 
     var rawOptions = {
       securityEnabled: securityEnabled
@@ -68,6 +72,8 @@ function formatOptions(rawOptions, callback) {
 }
 
 function create(environment, callback) {
+  console.log('Creating service options for ' + environment)
+
   switch (environment) {
     case 'production':
       createFromAwsParameterStore('/TaskList/Prod/', true, callback)
