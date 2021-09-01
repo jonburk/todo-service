@@ -2,13 +2,8 @@ version: 0.2
 
 env:
   parameter-store:
-    TASK_LIST_URI: /CodeBuild/TaskList/Prod/taskListUri
-    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/taskListPort
-    TASK_LIST_INTERNAL_PORT: /CodeBuild/TaskList/Prod/taskListInternalPort
-    TASK_LIST_MONGO_CONNECTION_STRING: /CodeBuild/TaskList/Prod/mongoConnectionString
-    TASK_LIST_OAUTH_CLIENT_ID: /CodeBuild/TaskList/Prod/oauthClientId
-    TASK_LIST_OAUTH_CLIENT_SECRET: /CodeBuild/TaskList/Prod/oauthClientSecret
-    TASK_LIST_SESSION_SECRET: /CodeBuild/TaskList/Prod/sessionSecret
+    TASK_LIST_URI: /CodeBuild/TaskList/Prod/serviceUri
+    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/servicePort
 
 phases:
   install:
@@ -25,7 +20,6 @@ phases:
       - npm --prefix ../todo-ui install
       - echo Creating config files...
       - node ../todo-ui/writeconfig.js ../todo-ui/config/prod.json
-      - node writeconfig.js ./config/production.json
   build:
     commands:      
       - echo Building UI...
