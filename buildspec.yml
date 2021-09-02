@@ -1,5 +1,10 @@
 version: 0.2
 
+env:
+  parameter-store:
+    TASK_LIST_URI: /CodeBuild/TaskList/Prod/serviceUri
+    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/servicePort
+
 phases:
   install:
     runtime-versions:
@@ -15,8 +20,16 @@ phases:
       - npm install
       - echo Running service tests
       - npm run test-cicd
+      - echo Running UI install...
+      - npm --prefix ../todo-ui install
+      - echo Running UI tests...
+      - npm --prefix ../todo-ui test
+      - echo Creating UI config files...
+      - node ../todo-ui/writeconfig.js ../todo-ui/config/prod.json
   build:
-    commands:
+    commands:      
+      - echo Building UI...
+      - npm --prefix ../todo-ui run build
       - echo Building Docker image...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
