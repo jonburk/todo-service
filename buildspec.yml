@@ -17,6 +17,7 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo Running npm install...
       - npm install
+      - npm test
       - npm --prefix ../todo-ui install
       - echo Creating config files...
       - node ../todo-ui/writeconfig.js ../todo-ui/config/prod.json
