@@ -7,7 +7,8 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node index.js",
-    "test": "cross-env NODE_ENV=test nyc node_modules/mocha/bin/_mocha -- --exit -R spec"
+    "test": "cross-env NODE_ENV=test nyc node_modules/mocha/bin/_mocha -- --exit -R spec",
+    "test-cicd": "nyc node_modules/mocha/bin/_mocha -- --exit -R spec"
   },
   "author": "Jonathan Burk",
   "license": "UNLICENSED",
