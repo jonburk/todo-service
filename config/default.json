@@ -1,10 +1,29 @@
 {
   "App": {
-    "db": {
-      "connectionString": "mongodb://localhost:27017/tasklist"
+    "parameterStorePath": "",
+    "console": {
+      "enabled": true
     },
     "server": {
-      "port": 8080
+      "listen": true,
+      "useCors": true
+    },
+    "swagger": {
+      "enabled": true
+    },    
+    "db": {
+      "connectionString": "mongodb://localhost:27017/tasklist"      
+    },
+    "security": {
+      "enabled": false,
+      "oauth2": {
+        "clientId": "",
+        "clientSecret": "",
+        "callbackUri": "http://localhost:8080/auth/google/callback"
+      },
+      "session": {
+        "secret": ""
+      }
     }
   }
 }

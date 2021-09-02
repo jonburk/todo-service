@@ -7,13 +7,14 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node index.js",
-    "start-dev": "cross-env NODE_ENV=development node index.js",
-    "test": "cross-env NODE_ENV=test nyc node_modules/mocha/bin/_mocha -- --exit -R spec"
+    "test": "cross-env NODE_ENV=test nyc node_modules/mocha/bin/_mocha -- --exit -R spec",
+    "test-cicd": "cross-env NODE_ENV=cicd nyc node_modules/mocha/bin/_mocha -- --exit -R spec"
   },
   "author": "Jonathan Burk",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "aws-sdk": "^2.980.0",
     "compression": "^1.6.2",
     "config": "^1.25.1",
     "connect-mongodb-session": "^2.4.1",

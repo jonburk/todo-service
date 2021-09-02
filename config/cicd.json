@@ -1,5 +1,6 @@
 {
   "App": {
+    "parameterStorePath": "/TaskList/CICD/",
     "console": {
       "enabled": false
     },
@@ -9,9 +10,6 @@
     },
     "swagger": {
       "enabled": false
-    },     
-    "db": {
-      "connectionString": "mongodb://localhost:27017/tasklist-test"
     }
   }
 }

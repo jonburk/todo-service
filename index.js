@@ -12,13 +12,14 @@ var cors = require('cors')
 var session = require('express-session')
 var MongoDBStore = require('connect-mongodb-session')(session)
 var db = require('./db')
-var serverPort = process.env.PORT || config.get('App.server.port')
+var serviceOptions = require('./serviceOptions')
+var serverPort = process.env.TODO_SERVICE_PORT || 8080
 
-function createServer (callback) {
+function createServer (options, callback) {
   // Open MongoDB connection
-  db.connect(function (err) {
+  db.connect(options.db.connectionString, function (err) {
     if (err) {
-      if (process.env.NODE_ENV !== 'test') {
+      if (options.console.enabled) {
         console.error(err)
       }
 
@@ -29,37 +30,31 @@ function createServer (callback) {
       return
     }
 
-    // swaggerRouter configuration
-    var options = {
-      swaggerUi: '/swagger.json',
-      controllers: './controllers',
-      useStubs: process.env.NODE_ENV === 'development' // Conditionally turn on stubs (mock mode)
-    }
+    // Health check for load balancer
+    app.get('/healthcheck', function (req, res) {
+      res.send('Healthy')
+    })
 
     // The Swagger document (require it, build it programmatically, fetch it from a URL, ...)
     var spec = fs.readFileSync('./api/swagger.yaml', 'utf8')
     var swaggerDoc = jsyaml.safeLoad(spec)
 
-    if (process.env.NODE_ENV === 'development') {
+    if (options.server.useCors) {
       // Add cors
       app.use(cors())
     }
 
-    app.get('/healthcheck', function (req, res) {
-      res.send('Healthy')
-    })
-
-    if (process.env.NODE_ENV === 'production') {
+    if (options.security.enabled) {
       var store = new MongoDBStore({
-        uri: config.get('App.db.connectionString'),
-        collection: config.get('App.server.session.collection')
+        uri: options.db.connectionString,
+        collection: 'sessions'
       })
 
       // Session
       var sessionConfig = {
         resave: false,
         saveUninitialized: false,
-        secret: config.get('App.server.session.secret'),
+        secret: options.security.session.secret,
         signed: true,
         store: store
       }
@@ -71,6 +66,7 @@ function createServer (callback) {
       app.use(passport.session())
 
       var oauth = require('./oauth2')
+      oauth.init(options.security.oauth2.clientId, options.security.oauth2.clientSecret, options.security.oauth2.callbackUri)
 
       app.use(oauth.router)
       app.use(oauth.required)
@@ -91,16 +87,20 @@ function createServer (callback) {
       app.use(middleware.swaggerValidator())
 
       // Route validated requests to appropriate controller
-      app.use(middleware.swaggerRouter(options))
+      app.use(middleware.swaggerRouter({
+        swaggerUi: '/swagger.json',
+        controllers: './controllers',
+        useStubs: options.swagger.enabled
+      }))
 
-      if (process.env.NODE_ENV === 'development') {
+      if (options.swagger.enabled) {
         // Serve the Swagger documents and Swagger UI
         app.use(middleware.swaggerUi())
       }
 
       // Start the server
       app.listen(serverPort, function () {
-        if (process.env.NODE_ENV !== 'test') {
+        if (options.console.enabled) {
           console.log(`App listening on port ${serverPort}`)
         }
 
@@ -110,8 +110,10 @@ function createServer (callback) {
   })
 }
 
-if (process.env.NODE_ENV !== 'test') {
-  createServer()
+if (config.get('App.server.listen')) {
+  serviceOptions.create(function(options) {
+    createServer(options)
+  })
 }
 
 module.exports.createServer = createServer

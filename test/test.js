@@ -3,6 +3,7 @@
 var expect = require('expect')
 var createServer = require('../index').createServer
 var db = require('../db')
+var serviceOptions = require('../serviceOptions')
 var _ = require('lodash')
 var moment = require('moment')
 var ObjectId = require('mongodb').ObjectID
@@ -14,10 +15,12 @@ var sandbox
 
 describe('API Tests', function () {
   before(function (done) {
-    createServer(function (app) {
-      tasks = db.get().collection('tasks')
-      request = require('supertest')(app)
-      done()
+    serviceOptions.create(function(options) {
+      createServer(options, function (app) {
+        tasks = db.get().collection('tasks')
+        request = require('supertest')(app)
+        done()
+      })
     })
   })
 
@@ -923,7 +926,7 @@ describe('Database connection error tests', function () {
 
   it('should handle a database connection error', function (done) {
     sandbox.stub(mongo, 'connect').callsArgWith(1, 'Error')
-    createServer(function (app) {
+    createServer({ db: { }, console: { } }, function (app) {
       expect(db.get()).toBeFalsy()
       expect(app).toBeFalsy()
       done()

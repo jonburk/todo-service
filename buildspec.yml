@@ -1,0 +1,40 @@
+version: 0.2
+
+env:
+  parameter-store:
+    TASK_LIST_URI: /CodeBuild/TaskList/Prod/serviceUri
+    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/servicePort
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo Build started on `date`
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Running npm install...
+      - npm install
+      - echo Running service tests
+      - npm run test-cicd
+      - echo Running UI install...
+      - npm --prefix ../todo-ui install
+      - echo Running UI tests...
+      - npm --prefix ../todo-ui test
+      - echo Creating UI config files...
+      - node ../todo-ui/writeconfig.js ../todo-ui/config/prod.json
+  build:
+    commands:      
+      - echo Building UI...
+      - npm --prefix ../todo-ui run build
+      - echo Building Docker image...
+      - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Publishing Docker image to ECR...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Build completed on `date`
+
