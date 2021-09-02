@@ -13,7 +13,6 @@ phases:
       - echo Build started on `date`
   pre_build:
     commands:
-      - printenv
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
@@ -22,7 +21,7 @@ phases:
       - echo Running service tests
       - npm run test-cicd
       - echo Running UI install...
-      - cd $CODEBUILD_SRC_DIR_UISource
+      - cd $CODEBUILD_SRC_DIR_UISourceArtifact
       - npm install
       - echo Running UI tests...
       - npm test
@@ -32,8 +31,8 @@ phases:
     commands:      
       - echo Building UI...
       - npm run build
-      - cd $CODEBUILD_SRC_DIR_ServiceSource
-      - cp -a $CODEBUILD_SRC_DIR_UISource/dist static
+      - cd $CODEBUILD_SRC_DIR
+      - cp -a $CODEBUILD_SRC_DIR_UISourceArtifact/dist static
       - echo Building Docker image...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
