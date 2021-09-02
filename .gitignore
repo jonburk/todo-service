@@ -1,6 +1,5 @@
 node_modules
 config/development.json
-config/production.json
 static
 coverage
 .nyc_output

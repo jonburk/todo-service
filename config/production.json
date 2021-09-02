@@ -1,0 +1,14 @@
+{
+  "App": {
+    "parameterStorePath": "/TaskList/Prod/",
+    "server": {
+      "useCors": false
+    },
+    "swagger": {
+      "enabled": false
+    },    
+    "security": {
+      "enabled": true
+    }
+  }
+}
