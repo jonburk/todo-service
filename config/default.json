@@ -1,8 +1,18 @@
 {
   "App": {
-    "isTesting": false,
+    "parameterStorePath": "",
+    "console": {
+      "enabled": true
+    },
+    "server": {
+      "listen": true,
+      "useCors": true
+    },
+    "swagger": {
+      "enabled": true
+    },    
     "db": {
-      "connectionString": "mongodb://localhost:27017/tasklist"
+      "connectionString": "mongodb://localhost:27017/tasklist"      
     },
     "security": {
       "enabled": false,

@@ -1,96 +1,81 @@
 var config = require('config')
 var AWS = require('aws-sdk')
 
-function createFromConfig(callback) {  
-  // Reshape the config settings to match the results from the AWS param store
-  var rawOptions = {
-    mongoConnectionString: config.get('App.db.connectionString'),
-    securityEnabled: config.get('App.security.enabled')
-  }
-
-  if (rawOptions.securityEnabled) {
-    rawOptions.oauthCallbackUri = config.get('App.security.oauth2.callbackUri')
-    rawOptions.oauthClientId = config.get('App.security.oauth2.clientId')
-    rawOptions.oauthClientSecret = config.get('App.security.oauth2.clientSecret')
-    rawOptions.sessionSecret = config.get('App.security.session.secret')
-  }
-
-  formatOptions(rawOptions, callback)
-}
-
-function createFromAwsParameterStore(path, securityEnabled, callback) {
+function overrideOptionsFromAwsParameterStore(options, path, callback) {
   var ssm = new AWS.SSM()
 
-  var params = {
+  var ssmParams = {
     Path: path,
     WithDecryption: true
   }
 
-  ssm.getParametersByPath(params, function (err, data) {
+  ssm.getParametersByPath(ssmParams, function (err, data) {
     if (err) {
       console.error('Error reading from parameter store')
       console.error(err)
-      callback({})
+      callback(options)
     }
 
-    var rawOptions = {
-      securityEnabled: securityEnabled
+    // Map parameter store keys to the options object
+    var map = {
+      mongoConnectionString: 'db.connectionString',
+      securityEnabled: 'security.enabled',
+      oauthClientId: 'security.oauth2.clientId',
+      oauthClientSecret: 'security.oauth2.clientSecret',
+      oauthCallbackUri: 'security.oauth2.callbackUri',
+      sessionSecret: 'security.session.secret'
     }
 
-    data.Parameters.forEach(function (param) {
+    data.Parameters.forEach(function (parameter) {
       // Get the last part of the path (/TaskList/Prod/foo => foo)
-      rawOptions[param.Name.match(/([^\/]*)\/*$/)[1]] = param.Value
-    })
+      var parameterName = [parameter.Name.match(/([^\/]*)\/*$/)[1]]
 
-    formatOptions(rawOptions, callback)
+      if (map.hasOwnProperty(parameterName)) {
+        _.set(options, map[parameterName], parameter.Value)
+      }
+    })
+  
+    callback(options)
   })
 }
 
-function formatOptions(rawOptions, callback) {  
+function create(environment, callback) {
+  console.log('Creating service options for ' + environment)  
+
   var options = {
+    console: {
+      enabled: config.get('App.console.enabled')
+    },
+    server: {
+      listen: config.get('App.server.listen'),
+      useCors: config.get('App.server.useCors')
+    },
+    swagger: {
+      enabled = config.get('App.swagger.enabled')
+    },
     db: {
-      connectionString: rawOptions.mongoConnectionString
+      connectionString: config.get('App.db.connectionString')
     },
     security: {
-      enabled: rawOptions.securityEnabled
+      enabled: config.get('App.security.enabled'),
+      oauth2: {
+        clientId: config.get('App.security.oauth2.clientId'),
+        clientSecret: config.get('App.security.oauth2.clientSecret'),
+        callbackUri: config.get('App.security.oauth2.callbackUri')
+      },
+      session: {
+        secret: config.get('App.security.session.secret')
+      }
     }
   }
 
-  if (options.security.enabled) {
-    options.security.oauth2 = {
-      clientId: rawOptions.oauthClientId,
-      clientSecret: rawOptions.oauthClientSecret,
-      callbackUri: rawOptions.oauthCallbackUri
-    }
+  var parameterStorePath = config.get('App.parameterStorePath')
 
-    options.security.session = {
-      secret: rawOptions.sessionSecret
-    }
+  if (parameterStorePath) {
+    overrideOptionsFromAwsParameterStore(options, parameterStorePath, callback)
+  } else {
+    callback(options)
   }
-
-  callback(options)
-}
-
-function create(environment, callback) {
-  console.log('Creating service options for ' + environment)
-
-  switch (environment) {
-    case 'production':
-      createFromAwsParameterStore('/TaskList/Prod/', true, callback)
-      break
-    case 'cicd':
-      createFromAwsParameterStore('/TaskList/CICD/', false, callback)
-      break      
-    case 'test':
-      createFromConfig(callback)
-      break
-    case 'development':
-      createFromConfig(callback)
-      break
-    default:
-      callback({})
-      break
-  }  
 }
 
 module.exports.create = create

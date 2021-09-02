@@ -19,7 +19,7 @@ function createServer (options, callback) {
   // Open MongoDB connection
   db.connect(options.db.connectionString, function (err) {
     if (err) {
-      if (process.env.NODE_ENV !== 'test') {
+      if (options.console.enabled) {
         console.error(err)
       }
 
@@ -39,7 +39,7 @@ function createServer (options, callback) {
     var spec = fs.readFileSync('./api/swagger.yaml', 'utf8')
     var swaggerDoc = jsyaml.safeLoad(spec)
 
-    if (process.env.NODE_ENV === 'development') {
+    if (options.server.useCors) {
       // Add cors
       app.use(cors())
     }
@@ -90,17 +90,17 @@ function createServer (options, callback) {
       app.use(middleware.swaggerRouter({
         swaggerUi: '/swagger.json',
         controllers: './controllers',
-        useStubs: process.env.NODE_ENV === 'development'
+        useStubs: options.swagger.enabled
       }))
 
-      if (process.env.NODE_ENV === 'development') {
+      if (options.swagger.enabled) {
         // Serve the Swagger documents and Swagger UI
         app.use(middleware.swaggerUi())
       }
 
       // Start the server
       app.listen(serverPort, function () {
-        if (process.env.NODE_ENV !== 'test') {
+        if (options.console.enabled) {
           console.log(`App listening on port ${serverPort}`)
         }
 
@@ -110,7 +110,7 @@ function createServer (options, callback) {
   })
 }
 
-if (!config.get('App.isTesting')) {
+if (config.get('App.server.listen')) {
   serviceOptions.create(process.env.NODE_ENV || 'development', function(options) {
     createServer(options)
   })
