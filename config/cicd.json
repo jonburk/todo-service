@@ -1,0 +1,15 @@
+{
+  "App": {
+    "parameterStorePath": "TaskList/CICD/",
+    "console": {
+      "enabled": false
+    },
+    "server": {
+      "listen": false,
+      "useCors": false
+    },
+    "swagger": {
+      "enabled": false
+    }
+  }
+}
