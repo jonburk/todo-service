@@ -10,13 +10,20 @@ NODE_ENV: development|test|production
 TODO_SERVICE_PORT: 8080
 AWS_REGION: us-east-2 (required for the AWS node sdk)
 
+### AWS Parameter store parameters
+/TaskList/Prod/mongoConnectionString
+/TaskList/Prod/oauthCallbackUri
+/TaskList/Prod/oauthClientId
+/TaskList/Prod/oauthClientSecret
+/TaskList/Prod/sessionSecret
+
 ### Running the server
 
 
 To run the server, run:
 
 ```
-npm run start-dev
+npm run start
 ```
 
 To view the Swagger UI interface:
