@@ -15,7 +15,7 @@ var sandbox
 
 describe('API Tests', function () {
   before(function (done) {
-    serviceOptions.create(process.env.NODE_ENV, function(options) {
+    serviceOptions.create(function(options) {
       createServer(options, function (app) {
         tasks = db.get().collection('tasks')
         request = require('supertest')(app)
@@ -926,7 +926,7 @@ describe('Database connection error tests', function () {
 
   it('should handle a database connection error', function (done) {
     sandbox.stub(mongo, 'connect').callsArgWith(1, 'Error')
-    createServer({ db: { connectionString: '' } }, function (app) {
+    createServer({ db: { }, console: { } }, function (app) {
       expect(db.get()).toBeFalsy()
       expect(app).toBeFalsy()
       done()

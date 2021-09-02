@@ -111,7 +111,7 @@ function createServer (options, callback) {
 }
 
 if (config.get('App.server.listen')) {
-  serviceOptions.create(process.env.NODE_ENV || 'development', function(options) {
+  serviceOptions.create(function(options) {
     createServer(options)
   })
 }

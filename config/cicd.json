@@ -1,6 +1,6 @@
 {
   "App": {
-    "parameterStorePath": "TaskList/CICD/",
+    "parameterStorePath": "/TaskList/CICD/",
     "console": {
       "enabled": false
     },

@@ -1,5 +1,6 @@
 var config = require('config')
 var AWS = require('aws-sdk')
+var _ = require('lodash')
 
 function overrideOptionsFromAwsParameterStore(options, path, callback) {
   var ssm = new AWS.SSM()
@@ -39,9 +40,7 @@ function overrideOptionsFromAwsParameterStore(options, path, callback) {
   })
 }
 
-function create(environment, callback) {
-  console.log('Creating service options for ' + environment)  
-
+function create(callback) {
   var options = {
     console: {
       enabled: config.get('App.console.enabled')
@@ -51,7 +50,7 @@ function create(environment, callback) {
       useCors: config.get('App.server.useCors')
     },
     swagger: {
-      enabled = config.get('App.swagger.enabled')
+      enabled: config.get('App.swagger.enabled')
     },
     db: {
       connectionString: config.get('App.db.connectionString')
