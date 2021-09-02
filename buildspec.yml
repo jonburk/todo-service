@@ -21,15 +21,17 @@ phases:
       - echo Running service tests
       - npm run test-cicd
       - echo Running UI install...
-      - npm --prefix $CODEBUILD_SRC_DIR_UISource install
+      - cd $CODEBUILD_SRC_DIR_UISource
+      - npm install
       - echo Running UI tests...
-      - npm --prefix $CODEBUILD_SRC_DIR_UISource test
+      - npm test
       - echo Creating UI config files...
-      - node $CODEBUILD_SRC_DIR_UISource/writeconfig.js $CODEBUILD_SRC_DIR_UISource/config/prod.json
+      - node writeconfig.js ./config/prod.json
   build:
     commands:      
       - echo Building UI...
-      - npm --prefix $CODEBUILD_SRC_DIR_UISource run build
+      - npm run build
+      - cd $CODEBUILD_SRC_DIR_ServiceSource
       - cp -a $CODEBUILD_SRC_DIR_UISource/dist static
       - echo Building Docker image...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
