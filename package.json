@@ -17,7 +17,7 @@
     "aws-sdk": "^2.980.0",
     "compression": "^1.6.2",
     "config": "^1.25.1",
-    "connect-mongodb-session": "^2.4.1",
+    "connect-mongodb-session": "^3.1.0",
     "cors": "^2.8.1",
     "express": "^4.15.2",
     "express-session": "^1.15.2",
