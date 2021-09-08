@@ -1,6 +1,6 @@
 {
   "App": {
-    "parameterStorePath": "/TaskList/Prod/",
+    "parameterStorePath": "/TaskList/Production/",
     "server": {
       "useCors": false
     },
