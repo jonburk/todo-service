@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   parameter-store:
-    TASK_LIST_URI: /CodeBuild/TaskList/Prod/serviceUri
-    TASK_LIST_PORT: /CodeBuild/TaskList/Prod/servicePort
+    TASK_LIST_URI: /CodeBuild/TaskList/Production/serviceUri
+    TASK_LIST_PORT: /CodeBuild/TaskList/Production/servicePort
 
 phases:
   install:
