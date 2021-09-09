@@ -153,7 +153,7 @@ resource "aws_ecs_service" "ecs_service" {
 
   load_balancer {
     container_name   = "${var.app_short_name}-container"
-    container_port   = 8080
+    container_port   = var.app_port_number
     target_group_arn = var.alb_target_group_arn
   }
 
