@@ -185,6 +185,10 @@ resource "aws_ecs_task_definition" "task_definition" {
         {
           name : "NODE_ENV"
           value : lower(var.environment)
+        },
+        {
+          name : "TODO_SERVICE_PORT"
+          value : tostring(var.app_port_number)
         }
       ]
       essential   = true
