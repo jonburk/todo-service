@@ -50,6 +50,9 @@ module "alb" {
       backend_port     = 80
       backend_protocol = "HTTP"
       vpc_id           = var.vpc_id
+      health_check = {
+        path = "/healthcheck"
+      }
     }
   ]
 
