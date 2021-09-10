@@ -14,6 +14,17 @@ resource "aws_security_group" "alb_sg" {
       prefix_list_ids  = []
       security_groups  = []
       self             = false
+    },
+    {
+      description      = ""
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
     }
   ]
 
@@ -64,6 +75,19 @@ module "alb" {
       target_group_index = 0
     }
   ]
+
+  http_tcp_listeners = [
+    {
+      port        = 80
+      protocol    = "HTTP"
+      action_type = "redirect"
+      redirect = {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+  ]  
 }
 
 resource "aws_acm_certificate" "cert" {
